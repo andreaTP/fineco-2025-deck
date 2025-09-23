@@ -1,0 +1,841 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- TITLE OF THE PRESENTATION -->
+  <!-- ============================================================ -->
+  <title>
+    WASM in the Enterprise: Secure, Portable, and Ready for Business
+  </title>
+  <!-- ============================================================ -->
+
+  <!-- Set a favicon icon (usually the lab logo) -->
+  <link rel="shortcut icon" href="imgs/chicory1.ico">
+
+  <!-- Fonts -->
+  <link rel="stylesheet" href="fonts/fontawesome/css/all.css">
+  <link rel="stylesheet" href="fonts/computer-modern/fonts.css">
+
+  <!-- Reveal.js styles -->
+  <link rel="stylesheet" href="packages/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="packages/revealjs/dist/reveal.css">
+  <link rel="stylesheet" href="packages/revealjs/dist/theme/solarized.css" id="theme">
+
+  <!-- Theme used for syntax highlighting of code -->
+  <link rel="stylesheet" href="packages/revealjs/plugin/highlight/github-gist.css" id="highlight-theme">
+
+  <!-- Custom CSS for the presentation -->
+  <link rel="stylesheet/less" type="text/css" href="css/style.less">
+
+</head>
+
+<body>
+  <!-- Include the presentation from the content Markdown file -->
+  <div class="reveal">
+    <div class="slides">
+      <section data-markdown>
+        <textarea data-template>
+          <img src="./imgs/wasmee.svg" height="20%" width="20%" style="height: 20%; width: 20%;"></img>
+
+          # WASM in the Enterprise: Secure, Portable, and Ready for Business
+        </textarea>
+      </section>
+
+      <section>
+        <h1>About me:</h1>
+        <br/>
+        <img src="imgs/minu.jpg" style="height: 40%; width: 40%;"></img>
+        
+        <br/>
+        <br/>
+        <img src="imgs/IBM_rebus_h_pos_blue60_RGB.png" style="height: 20%; width: 20%;"></img>
+        <img src="imgs/chicory1.png" style="height: 12%; width: 12%;"></img>
+        <br/>
+
+        <aside class="notes">
+        - I live in sunny Lisbon
+        - Principal Engineer in Middleware in Red Hat
+        - I love programming and open source in particular
+        - I have gone through very different contexts: embedded, robots, machines, cloud, distributed systems, APIs etc.
+        - recently hacking on Chicory but we will see it in detail later on
+      </aside>
+      </section>
+
+      <section>
+        <h1>Agenda:</h1>
+        
+        <center>
+        1. <img class="fragment" src="imgs/motivation.jpg" style="height: 30%; width: 30%;"></img>
+        2. <img class="fragment" src="imgs/when-rubber.jpg" style="height: 30%; width: 30%;"></img>
+        </center>
+
+        <aside class="notes">
+        Let's see what we will be talking about today, this presentation is split in 2 sections:
+
+        - motivation that got us started
+        - real world projects, challenges and solutions ("when rubber hits the road")
+      </aside>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            # WebAssembly
+
+            ## <img src="./imgs/WebAssembly_Logo.svg" style="height: 15%; width: 15%;"></img> &lt3 <img src="./imgs/5-2-browsers-free-png-image.png" style="height: 15%; width: 15%;"></img>
+
+            - **Speed** for CPU heavy tasks
+            - **Secure** execution through sandboxing
+            - **Standard** as part of the W3C
+
+            Note:
+
+            - being it named after the "Web" the natural environment for Wasm is the browser
+            - Wasm shines in the browsers and we are using it on a daily basis
+            - speed for example: image processing remove the limitations of a dynamic language like JS
+
+            <!-- attribution <a href="https://freepngimg.com/png/10486-browsers-free-png-image">Browsers Free Png Image from FreePNGimg.com</a> -->
+          </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+            # Server Side
+
+            ## <img src="./imgs/WebAssembly_Logo.svg" style="height: 15%; width: 15%;"></img>
+
+            - **Polyglot** with a lot of programming languages support
+            - **Embeddable** in a lot of host runtimes
+            - **Secure** allows to run untrusted code
+            - **Standard** as part of the W3C
+
+            Note:
+
+            - Wasm has properties and charateristics that makes it a perfect execution environment on the server
+            - first off it's Polyglot and we can compile from an increasing number of compatible programming languages,
+              we don't need to decide upfront what language to support
+            - it's built to be embedded in a host runtime, similarly to what happens in the browsers with JavaScript
+              we can rely on standard interaction mechanisms that make it easy to be used in different environments
+            - it's secure and the sandboxing mechanism can be leveraged on the server side to enable untrusted code execution
+            - and again, is a W3C standard, is not going away anytime soon and more is going to be built on it
+          </textarea>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/wasm_bytecode_chicory.png" style="height: 70%; width: 70%;"></img>
+
+            Note:
+
+            As we mentioned a lot of programming languages has something to do with Wasm
+            some compile to it and we have Wasm runtimes in available in a number of environments
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/wasm_bytecode_chicory_only.png" style="height: 70%; width: 70%;"></img>
+
+            Note:
+
+            For today we will concentrate on the challenges and the lessons learned of running
+            WebAssembly in pure Java thanks to the Chicory runtime
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            [chicory.dev](https://chicory.dev)
+            <br/>
+            <img src="./imgs/chicory-qr-code.png" style="height: 10%; width: 10%;"></img>
+
+            <img src="./imgs/chicory1.png" style="height: 30%; width: 30%;"></img>
+          </textarea>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/dewang-gupta-r8q16QN40Xg-unsplash.jpg" style="height: 30%; width: 30%;"></img>
+            
+
+            Note:
+
+            Let's take a moment to appreciate the reasons why we embarked the journey of building a Java native
+            WASM runtime, we are not just crazy, I believe!
+
+            Photo by <a href="https://unsplash.com/@dewang?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Dewang Gupta</a> on <a href="https://unsplash.com/photos/man-using-silver-iphone-6-r8q16QN40Xg?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## The JVM: 30 Years of Value Creation
+
+            <img style="width: 35%;" src="imgs/java-servers2.png">
+            
+            Note:
+
+            We know Java is spread everywhere and we love it!
+          </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+            # Loading Native Code in the JVM Has Downsides
+
+            - **Distribution** : Makes your app platform specific
+            - **Runtime** : Execution leaves safety and observability of the JVM
+
+            Note:
+
+            - Distribution: The primary reason people target the JVM is for it's platform dependence. This violates it.
+            - Runtime: Jumping into the native code leaves the safety and observability of the JVM. It also adds
+            complexity and overhead when translating across the boundary.
+          </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+            # Within the JVM Boundaries
+
+            - Guaranteed Memory Safety
+            - Fault Isolation
+            - Advanced JIT
+            - Self contained programs
+            - WORA: (Write once run anywhere) Platform independent bytecode
+            - ... more!
+
+            Note:
+
+            - So lets talk about specifics, what are the benefits of staying within the boundaries of the JVM?
+          </textarea>
+        </section>
+      </section>
+
+      <!-- End of the first introductory 10 minutes -->
+
+      <!-- Start call to action -->
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/wasm_bytecode_chicory_only.png" style="height: 70%; width: 70%;"></img>
+            
+            Note:
+
+            Now that we have the core elements, lets see what happen when the rubber hits the road and we start
+            implementing and scaling real-world case studies of the technology
+
+            Photo by <a href="https://unsplash.com/@hollymandarich?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Holly Mandarich</a> on <a href="https://unsplash.com/photos/person-carrying-yellow-and-black-backpack-walking-between-green-plants-UVyOfX3v0Ls?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+          </textarea>
+        </section>
+        <section>
+          <img class="fragment" src="./imgs/sleepy-sloth-no-bkg.png" style="height: 30%; width: 30%;"></img>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img class="fragment" src="./imgs/sloth-no-bkg.png" style="height: 30%; width: 30%;"></img>
+            - Slow <!-- .element: class="fragment" -->
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img class="fragment" src="./imgs/fast-sloth-no-bkg.png" style="height: 30%; width: 30%;"></img>
+            - Fast <!-- .element: class="fragment" -->
+          </textarea>
+        </section>
+      </section>
+
+      <!-- case study 1 JRuby -->
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            case study 1
+
+            https://blog.enebo.com/2024/02/23/jruby-prism-parser.html
+            <br/>
+            <img src="./imgs/jruby.png" style="height: 30%; width: 30%;"></img>
+            <br/>
+
+            > JRuby is a high performance, stable, fully threaded Java implementation of the Ruby programming language.
+
+            Note:
+
+            From an historical point of view, JRuby has been the first "real world" case study for Chicory.
+            JRuby is a full implementation of Ruby that runs really fast and is used widely.
+
+            I got contacted regarding a new implementation of the Ruby parser, but let's go step by step.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/ruby_iceberg.png" style="height: 30%; width: 30%;"></img>
+
+            - **Ruby** UX
+            - **C** foundation
+            
+            Note:
+
+            Ruby is some kind of an iceberg, C interoperability is a first class building block.
+            Just like Python those days where the language is used for numeric computation as some kind of
+            "DSL" on top of low-level C/C++.
+            Ruby has always been optimized by rewriting fundamental libraries in C.
+
+            This is already a friction point on JRuby where people need to port the "Ruby bits" of a library to Java
+            and subsequently bind to the underlying C code with all the pain and struggle of using JNI and the risks
+            of running code outside the JVM.
+
+            Photo by <a href="https://unsplash.com/@simonppt?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">SIMON LEE</a> on <a href="https://unsplash.com/photos/a-large-iceberg-floating-in-the-water-qjs2R1lMMcw?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/ruby-prism.png" style="height: 10%; width: 10%;"></img>
+
+            [How to parse Ruby](https://programmingisterrible.com/post/42432568185/how-to-parse-ruby)
+
+            ```ruby
+            (lambda { |x| x.send((x > 0 ? :succ : :pred).to_s.to_sym) }).call((rand(2) == 1 ? -1 : 1) * (1..10).to_a.sample)
+            ```
+
+            > slowly lose your sanity, gazing into the abyss that is **parse.y**
+            
+            Note:
+
+            Ruby syntax is complex, as it tries to feel natural to humans, and, well, humans are complex creatures ...
+            The first step any interpreter/compiler should pass is parsing the syntax and doing something down the line
+            with it.
+            Given the complexity of the task multiple Ruby parsers emerged, and the situation has been a bit chaotic.
+
+            Photo by <a href="https://unsplash.com/@fotograw?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Dmitriy Demidov</a> on <a href="https://unsplash.com/photos/a-group-of-wrenches-arranged-in-a-circle-iuuJC_pjLU0?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/ruby-prism.png" style="height: 10%; width: 10%;"></img>
+
+            <img src="./imgs/standards_2x.png" style="height: 50%; width: 50%;"></img>
+            
+            Note:
+
+            To sort the situation a new parser have been designed and implemented in pure C: Prism!
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/jruby.png" style="height: 30%; width: 30%;"></img> + 
+            <img src="./imgs/chicory1.png" style="height: 10%; width: 10%;"></img> + 
+            <img src="./imgs/ruby-prism.png" style="height: 10%; width: 10%;"></img>
+            
+            # =
+
+            # **Portability!**
+
+            
+            Note:
+
+            Running Prism with Chicory, with zero native dependencies, has several advantages, it doesn't need a C library to be built
+            for each and every target architecture(like x86, ARM etc.).
+            This is important, for example, to bootstrap on IBM Z, which is the processor of IBM's mainframes
+            where the JVM is available, but, compiling and running an additional library requires significant effort.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/jruby.png" style="height: 30%; width: 30%;"></img> + 
+            <img src="./imgs/chicory1.png" style="height: 10%; width: 10%;"></img> + 
+            <img src="./imgs/ruby-prism.png" style="height: 10%; width: 10%;"></img>
+
+            # =
+            
+            <img class="fragment fade-up" src="./imgs/sloth-no-bkg.png" style="height: 20%; width: 20%;"></img>
+            
+            Note:
+
+            By using Prim with the Chicory interpreter, why, unsuprisingly, found out that it was pretty slow.
+            But this doesn't need to be the case.
+
+            Photo by <a href="https://unsplash.com/@damebash?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Sebastian Molinares</a> on <a href="https://unsplash.com/photos/primate-climbing-tree-VcRbMldAFU8?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/chicory-aot.png" style="height: 50%; width: 50%;"></img>
+            <br/>
+            <img src="./imgs/prism-perf.png" style="height: 20%; width: 20%;"></img>
+
+            [Throughput :](https://github.com/andreaTP/wasm-bench/tree/bench-prism)
+
+            | Interpreter | AOT |
+            |---|---|
+            | 1127 ops/s | 35259 ops/s |
+            
+            Note:
+
+            We found out that WASM binary format and Java bytecode are very, very similar, so we developed
+            an experimental AOT(Ahead Of Time) compiler/translator that takes WASM and emits pure Java bytecode,
+            again, with zero dependencies outside Chicory itself.
+            With it you can get pure Java bytecode out of a WASM module and it will run fast on any, stock, JVM.
+            We have a basic "Hello world" application compiled from Go code, and those are the numbers in operations
+            per second, of comparing the Chicory interpreter with the "AOT compiled" pure Java bytecode.
+          </textarea>
+        </section>
+        <section>
+          <img src="./imgs/fast-sloth-no-bkg.png" style="height: 50%; width: 50%;"></img>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            case study 2
+
+            https://trino.io/docs/current/udf/python.html
+            <br/>
+            <img src="./imgs/trino-ko_tiny-alt.svg" style="height: 10%; width: 10%;"></img>
+            <br/>
+
+            > Trino, distributed SQL query engine for big data analytics
+
+            Note:
+
+            TrinoDB is a distributed SQL database that happens to be built in Java.
+            One of the first contributors to Chicory, David Philips, wanted to run Python UDF functions.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/Python-logo-notext.svg.png" style="height: 8%; width: 8%;"></img>
+            &lt3
+            <img src="./imgs/WebAssembly_Logo.svg" style="height: 9%; width: 9%;"></img>
+
+            <br/>
+            <img src="./imgs/py-tier2.png" style="height: 50%; width: 50%;"></img>
+
+            Note:
+
+            Starting from the recent 3.13 release CPython is a Tier 2 release target.
+            So officially supported and any failure will block the release train.
+            This enable to run the Pyhton interpreter on any WASI/WASM engine.
+            And, of course, it runs on Chicory.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/py-std-lib.png" style="height: 15%; width: 15%;"></img>
+            <img src="./imgs/loading_python.png" style="height: 30%; width: 30%;"></img>
+            <img class="fragment fade-up" src="./imgs/sloth-no-bkg.png" style="height: 20%; width: 20%;"></img>
+            
+            Note:
+
+            Python is a pure interpreter, and it takes time to, on startup, load the entire standard library.
+            Wasm promises very low latency startup times, so we need to find a way to speedup to make it a viable choiche.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # wasi-vfs
+
+            https://github.com/kateinoigakukun/wasi-vfs
+
+            > **Embedded file system**: a read only file system embedded in the .wasm binary.
+            
+            Note:
+
+            First off we need to have quick access to all the files of the Python standard library.
+            Instead of loading it from the Host, you can pre-load all of them into the wasm module itself.
+            Using Wasi-VFS we don't need to give access to the host File System.
+            This is also very secure.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # Wizer
+
+            https://github.com/bytecodealliance/wizer
+
+            > The WebAssembly Pre-Initializer
+            
+            Note:
+
+            Wizer comes to help, with it you can run your wasm module and record the status in another wasm module.
+            Next time you start the pre-initialized module it will start, super quickly, from where it left.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/preloaded-python.png" style="height: 60%; width: 60%;"></img>
+
+            - **Before**: initialization time **40 seconds**
+            - **After**: initialization time **1 second**
+
+            <small>*on my machine</small>
+            
+            Note:
+
+            So snapshotting a pre-initialized version of Python after loading the entire standard library
+            makes it fast, reliable, and more secure.
+          </textarea>
+        </section>
+        <section>
+          <img src="./imgs/fast-sloth-no-bkg.png" style="height: 50%; width: 50%;"></img>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            case study 3
+
+            <img src="./imgs/debezium.png" style="height: 30%; width: 30%;"></img>
+
+            https://debezium.io/blog/2025/02/24/go-smt/
+            <br/>
+            <img src="./imgs/debezium-server-architecture.png" style="height: 30%; width: 30%;"></img>
+            <br/>
+
+            Note:
+
+            Debezium is an engine for Change Data Capture capable of connecting to a variety of different databases.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/debezium.png" style="height: 20%; width: 20%;"></img>
+            &lt3
+            <img src="./imgs/go.png" style="height: 12%; width: 12%;"></img>
+            <br/>
+            <br/>
+            because:  
+
+            <img src="./imgs/k8s.png" style="height: 20%; width: 20%;"></img>
+
+            Note:
+
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # **S**ingle **M**essage **T**ransformation
+
+            <img src="./imgs/filter.png" style="height: 40%; width: 40%;"></img>
+
+            - filter
+            - routing
+            - ... more!
+
+            Note:
+
+            Bheind the scenes, Debezium, is powered by Kafka Connect and is based, obviously, on Kafka.
+            One of the interesting characteristics of Debezium is that it allows for Single Message Transformations.
+            This means that, for each and every event happening on the database, you can inspect the payload of the generated message
+            and take actions, for example filtering only valid messages or routing the content to a different topic.
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # Naive approach
+
+            <img src="./imgs/debezium-serialization-naive.png" style="height: 80%; width: 80%;"></img>
+            <img class="fragment fade-up" src="./imgs/sloth-no-bkg.png" style="height: 20%; width: 20%;"></img>
+
+            Note:
+
+            We want to use Go for our transformations, but, given that we are going to run it in a Wasm sandbox
+            we'd need a full cycle of serialization/deserialization of the entire message.    
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ```go
+            package main
+            import (
+              "github.com/debezium/debezium-smt-go-pdk"
+            )
+
+            //export process
+            func process(proxyPtr uint32) uint32 {
+              var sourceVersion = debezium.GetString(debezium.Get(proxyPtr, "value.source.version"))
+              return debezium.SetBool(sourceVersion == "1.2.3")
+            }
+            func main() {}
+            ```
+
+            <img src="./imgs/debezium-serialization-lazy.png" style="height: 40%; width: 40%;"></img>
+
+            <small>https://github.com/debezium/debezium-smt-go-pdk</small>
+            
+            Note:
+
+            Instead providing a Go Plugin Development Kit to lazy access the data
+          </textarea>
+        </section>
+        <section>
+          <img src="./imgs/fast-sloth-no-bkg.png" style="height: 50%; width: 50%;"></img>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            case study 4 - optional
+
+            <img src="./imgs/sqlite370_banner.svg" style="height: 30%; width: 30%;"></img>
+
+            > SQLite is the most used database engine in the world
+
+            Note:
+
+            SQLite is used everywhere, we want to run it safely in Java applications without FFI
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/sqlite370_banner.svg" style="height: 15%; width: 15%;"></img>
+            +
+            <img src="./imgs/Java_programming_language_logo.svg.png" style="height: 8%; width: 8%;"></img>
+            <br/>
+            # =
+            <img src="./imgs/sqlite-compilation.png" style="height: 70%; width: 70%;"></img>
+            <img src="./imgs/SQLite4j_logo.png" style="height: 10%; width: 10%;"></img>
+
+            Note:
+
+            So thanks to Chicory we compiled SQLite to WASM, compiled WASM to Java Bytecode to safely run
+            in the pure JVM
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/sqlite370_banner.svg" style="height: 15%; width: 15%;"></img>
+            +
+            <img src="./imgs/Java_programming_language_logo.svg.png" style="height: 8%; width: 8%;"></img>
+            <br/>
+            # =
+            <img class="fragment fade-up" src="./imgs/sloth-no-bkg.png" style="height: 20%; width: 20%;"></img>
+
+            Note:
+
+            We figured out that execution of a lot of queries was really slow
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # Memory.grow
+            <img src="./imgs/memory-grow.png" style="height: 80%; width: 80%;"></img>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            # Pre-allocation
+            <img src="./imgs/sqlite-memory-base.png" style="height: 40%; width: 40%;"></img>
+            <img class="fragment" src="./imgs/sqlite-memory-after.png" style="height: 40%; width: 40%;"></img>
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <small>https://github.com/roastedroot/sqlite4j</small>
+
+            ```bash
+            mvn test -Dtest=QueryTest
+            ```
+
+            Before:
+
+            > Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: **52.03 s** -- in io.roastedroot.sqlite4j.QueryTest
+
+            After:
+
+            > Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: **8.035 s** -- in io.roastedroot.sqlite4j.QueryTest
+          </textarea>
+        </section>
+        <section>
+          <img src="./imgs/fast-sloth-no-bkg.png" style="height: 50%; width: 50%;"></img>
+        </section>
+      </section>
+
+      <section>
+        <section data-markdown>
+          <textarea data-template>
+            conclusions
+
+            When you need:
+
+            - Safety <!-- .element: class="fragment" -->
+            - Portability <!-- .element: class="fragment" -->
+            - Speed <!-- .element: class="fragment" -->
+            - Polyglot <!-- .element: class="fragment" -->
+
+            Note:
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            conclusions
+
+            When you have a constrained problem like:
+
+            - A stable C/C++/Rust library <!-- .element: class="fragment" -->
+            - A stable ABI (Application Binary Interface) <!-- .element: class="fragment" -->
+            - ...more! <!-- .element: class="fragment" -->
+
+            Note:
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/forbidden-sloth.png" style="height: 30%; width: 30%;"></img>
+
+            Note:
+            
+            Don't fear the sloth!
+            Even if there are technical challenges you can endure the pain and have pretty fast Wasm modules ready for production
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            <img src="./imgs/fast-sloth-happy-no-bkg-wasm.png" style="height: 50%; width: 50%;"></img>
+
+            Note:
+          </textarea>
+        </section>
+      </section>
+
+      <section data-markdown>
+        <textarea data-template>
+          # Thanks and Q&A
+
+          <img style="width: 10%;" src="imgs/chicory1.png">
+          <br/>
+
+          https://github.com/dylibso/chicory
+          <br/>
+          https://github.com/andreaTP/fineco-2025-deck
+          <br/>
+          <img style="width: 10%;" src="imgs/QR_Code_1743877239.png">
+        </textarea>
+      </section>
+
+      <section data-markdown>
+        <textarea data-template>
+          <img style="width: 50%;" src="imgs/wasmIO.jpeg">
+        </textarea>
+      </section>
+    </div>
+  </div>
+
+  <!-- Less to compile the style sheet to plain CSS -->
+  <script src="packages/less/less.min.js" type="text/javascript"></script>
+
+  <!-- Import the Reveal.js Javascript code -->
+  <script src="packages/revealjs/dist/reveal.js" type="text/javascript"></script>
+  <!-- Code for the plugins (also need to include them in Reveal.initialize) -->
+  <script src="packages/revealjs/plugin/math/math.js" type="text/javascript"></script>
+  <script src="packages/revealjs/plugin/markdown/markdown.js" type="text/javascript"></script>
+  <script src="packages/revealjs/plugin/highlight/highlight.js" type="text/javascript"></script>
+  <script src="packages/revealjs/plugin/notes/notes.js" type="text/javascript"></script>
+
+  <!-- Configure Reveal.js -->
+  <script>
+    Reveal.initialize({
+      katex: {
+        local: 'packages/katex',
+      },
+      plugins: [RevealMarkdown, RevealMath.KaTeX, RevealHighlight, RevealNotes],
+      width: 1920,
+      height: 1080,
+      margin: 0.1,
+      // Bounds for smallest/largest possible scale to apply to content
+      minScale: 0.1,
+      maxScale: 2.0,
+      // Play videos automatically when displaying a slide
+      autoPlayMedia: true,
+      // Vertical centering of slides
+      center: true,
+      // Transition style
+      transition: 'none', // none/fade/slide/convex/concave/zoom
+      // Transition speed
+      transitionSpeed: 'default', // default/fast/slow
+      // Transition style for full page slide backgrounds
+      backgroundTransition: 'none', // none/fade/slide/convex/concave/zoom
+      // Display presentation control arrows
+      controls: true,
+      // Help the user learn the controls by providing hints, for example by
+      // bouncing the down arrow when they first encounter a vertical slide
+      controlsTutorial: true,
+      // Determines where controls appear, "edges" or "bottom-right"
+      controlsLayout: 'bottom-right',
+      // Visibility rule for backwards navigation arrows; "faded", "hidden"
+      // or "visible"
+      controlsBackArrows: 'faded',
+      // Display a presentation progress bar
+      progress: true,
+      // Display the page number of the current slide
+      // - "c/t":   Flattened slide number / total slides
+      slideNumber: "c/t",
+      // Add the current slide number to the URL hash so that reloading the
+      // page/copying the URL will return you to the same slide
+      hash: true,
+      // Flags if we should monitor the hash and change slides accordingly
+      respondToHashChanges: true,
+      // Turns fragments on and off globally
+      fragments: true,
+      // Flags whether to include the current fragment in the URL,
+      // so that reloading brings you to the same fragment position
+      fragmentInURL: true,
+      // Push each slide change to the browser history.  Implies `hash: true`
+      history: false,
+      // Enable keyboard shortcuts for navigation
+      keyboard: true,
+      // Enables touch navigation on devices with touch input
+      touch: true,
+      // Loop the presentation
+      loop: false,
+      // Changes the behavior of our navigation directions.
+      // "default"
+      // Left/right arrow keys step between horizontal slides, up/down
+      // arrow keys step between vertical slides. Space key steps through
+      // all slides (both horizontal and vertical).
+      // "linear"
+      // Removes the up/down arrows. Left/right arrows step through all
+      // slides (both horizontal and vertical).
+      // "grid"
+      // When this is enabled, stepping left/right from a vertical stack
+      // to an adjacent vertical stack will land you at the same vertical
+      // index.
+      navigationMode: 'linear',
+      // Flags if we should show a help overlay when the question-mark
+      // key is pressed
+      help: true,
+      // Flags if it should be possible to pause the presentation (blackout)
+      pause: false,
+      // Flags if speaker notes should be visible to all viewers
+      //showNotes: false,
+      // Enable slide navigation via mouse wheel
+      mouseWheel: false,
+      // The maximum number of pages a single slide can expand onto when printing
+      // to PDF, unlimited by default (Number.POSITIVE_INFINITY)
+      pdfMaxPagesPerSlide: Number.POSITIVE_INFINITY,
+      // Prints each fragment on a separate slide
+      pdfSeparateFragments: true,
+      // Offset used to reduce the height of content within exported PDF pages.
+      // This exists to account for environment differences based on how you
+      // print to PDF. CLI printing options, like phantomjs and wkpdf, can end
+      // on precisely the total height of the document whereas in-browser
+      // printing has to end one pixel before.
+      pdfPageHeightOffset: -1,
+      // forward every 15 seconds
+      // autoSlide: 15000,
+      // stop at the end
+      loop: false
+    });
+  </script>
+
+</body>
+
+</html>
