@@ -56,11 +56,16 @@
         <br/>
 
         <aside class="notes">
-        - I live in sunny Lisbon
-        - Principal Engineer in Middleware in Red Hat
-        - I love programming and open source in particular
-        - I have gone through very different contexts: embedded, robots, machines, cloud, distributed systems, APIs etc.
-        - recently hacking on Chicory but we will see it in detail later on
+          <ul>
+            <li>I have gone through very different contexts: embedded, machines, cloud, distributed systems, APIs etc.</li>
+            <li>gli ultimi anni in Italia lavoravo in Unicredit R&D qui a Milano, dove, essenzialmente, ci divertivamo, quando mi hanno chiesto di fare produzione sono scappato</li>
+            <li>Principal Engineer in Middleware in IBM</li>
+            <li>I love programming and open source in particular</li>
+            <li>I live in sunny Lisbon</li>
+            <li>il Portoghese lo parlo male, l'inglese e' cosi' cosi' e l'Italiano lo sto dimenticando quindi scusatemi se mi impappinero' male</li>
+            <li>recently hacking on Chicory but we will see it in detail later on</li>
+            <li>quella nella foto e' la bestia che vive con me, per strada le persone si girano dicendo che e' una iena, ma le mie bimbe correggono dicendo che e' uno Ienistrello</li>
+          </ul>
       </aside>
       </section>
 
@@ -75,8 +80,10 @@
         <aside class="notes">
         Let's see what we will be talking about today, this presentation is split in 2 sections:
 
-        - motivation that got us started
-        - real world projects, challenges and solutions ("when rubber hits the road")
+        <ul>
+          <li>motivation that got us started</li>
+          <li>real world projects, challenges and solutions ("when rubber hits the road") | quando il gioco si fa duro</li>
+        </ul>
       </aside>
       </section>
 
@@ -92,6 +99,8 @@
             - **Standard** as part of the W3C
 
             Note:
+
+            is a binary format for executable programs, nato anzitutto per superare le limitazioni di eseguire un linguaggio di programmazione dinamico come JS
 
             - being it named after the "Web" the natural environment for Wasm is the browser
             - Wasm shines in the browsers and we are using it on a daily basis
@@ -142,7 +151,7 @@
 
             Note:
 
-            For today we will concentrate on the challenges and the lessons learned of running
+            For today we will focus on the challenges and the lessons learned of running
             WebAssembly in pure Java thanks to the Chicory runtime
           </textarea>
         </section>
@@ -223,7 +232,7 @@
       <section>
         <section data-markdown>
           <textarea data-template>
-            <img src="./imgs/wasm_bytecode_chicory_only.png" style="height: 70%; width: 70%;"></img>
+            <img src="imgs/when-rubber.jpg" style="height: 30%; width: 30%;"></img>
             
             Note:
 
@@ -357,7 +366,7 @@
             
             Note:
 
-            By using Prim with the Chicory interpreter, why, unsuprisingly, found out that it was pretty slow.
+            By using Prim with the Chicory interpreter, we, unsuprisingly, found out that it was pretty slow.
             But this doesn't need to be the case.
 
             Photo by <a href="https://unsplash.com/@damebash?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Sebastian Molinares</a> on <a href="https://unsplash.com/photos/primate-climbing-tree-VcRbMldAFU8?utm_content=creditCopyText&utm_medium=referral&utm_source=unsplash">Unsplash</a>
@@ -371,18 +380,18 @@
 
             [Throughput :](https://github.com/andreaTP/wasm-bench/tree/bench-prism)
 
-            | Interpreter | AOT |
+            | Interpreter | Compiler |
             |---|---|
             | 1127 ops/s | 35259 ops/s |
             
             Note:
 
             We found out that WASM binary format and Java bytecode are very, very similar, so we developed
-            an experimental AOT(Ahead Of Time) compiler/translator that takes WASM and emits pure Java bytecode,
+            an experimental compiler/translator/traspilatore that takes WASM and emits pure Java bytecode,
             again, with zero dependencies outside Chicory itself.
             With it you can get pure Java bytecode out of a WASM module and it will run fast on any, stock, JVM.
             We have a basic "Hello world" application compiled from Go code, and those are the numbers in operations
-            per second, of comparing the Chicory interpreter with the "AOT compiled" pure Java bytecode.
+            per second, of comparing the Chicory interpreter with the compiled pure Java bytecode.
           </textarea>
         </section>
         <section>
@@ -471,10 +480,14 @@
           <textarea data-template>
             <img src="./imgs/preloaded-python.png" style="height: 60%; width: 60%;"></img>
 
-            - **Before**: initialization time **40 seconds**
-            - **After**: initialization time **1 second**
+            <div class="fragment">
+              <ul>
+                <li><strong>Before</strong>: initialization time <strong>40 seconds</strong></li>
+                <li><strong>After</strong>: initialization time <strong>1 second</strong></li>
+            </ul>
 
             <small>*on my machine</small>
+            </div>
             
             Note:
 
@@ -527,6 +540,7 @@
 
             - filter
             - routing
+            - transform
             - ... more!
 
             Note:
@@ -583,7 +597,7 @@
       <section>
         <section data-markdown>
           <textarea data-template>
-            case study 4 - optional
+            case study 4
 
             <img src="./imgs/sqlite370_banner.svg" style="height: 30%; width: 30%;"></img>
 
@@ -592,6 +606,8 @@
             Note:
 
             SQLite is used everywhere, we want to run it safely in Java applications without FFI
+            Per chi e' attento agli sviluppi piu' recenti, una startup, Turso, sta riscrivendo SQLite in Rust per sfruttare io_uring
+            Turso funziona in Chicory, ma la sua compatibilita' con le funzionalita' di SQLite e' ancora limitata
           </textarea>
         </section>
         <section data-markdown>
@@ -628,6 +644,11 @@
           <textarea data-template>
             # Memory.grow
             <img src="./imgs/memory-grow.png" style="height: 80%; width: 80%;"></img>
+
+            Note:
+
+            Emitting a flamegrap by stressing an insert operation you can clearly see that execution is dominated,
+            as shown by the long horizontal line, by the `memory.grow` operation.
           </textarea>
         </section>
         <section data-markdown>
@@ -635,6 +656,17 @@
             # Pre-allocation
             <img src="./imgs/sqlite-memory-base.png" style="height: 40%; width: 40%;"></img>
             <img class="fragment" src="./imgs/sqlite-memory-after.png" style="height: 40%; width: 40%;"></img>
+
+            Note:
+
+            SQLite by default ask to increase the memory the exact amount that is needed for the current operation.
+            e.g. if it should store a string in memory it triggers a `memory.grow`(incremento della memoria) for the
+            exact size of the string.
+            You can imagine that for "doing the job" of a database with query parsers, executors etc. etc.
+            this operation appens a ton of times.
+            
+            This happens because increasing the wasm module's memory means effectively instantiating a new array
+            and filling it with the old content, and this is expensive!
           </textarea>
         </section>
         <section data-markdown>
@@ -717,7 +749,10 @@
           <br/>
           https://github.com/andreaTP/fineco-2025-deck
           <br/>
-          <img style="width: 10%;" src="imgs/QR_Code_1743877239.png">
+          <hr/>
+          <a href="https://github.com/roastedroot/wasm-java-agents-blueprint">
+            https://github.com/roastedroot/wasm-java-agents-blueprint
+          </a>
         </textarea>
       </section>
 
